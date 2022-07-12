@@ -16,6 +16,8 @@
 
 		public int FreightTotalWeightKg { get; set; }
 
+		public int TrainNum { get; set; }
+
 		public TrainFullScalePage Train {get; set;}	
 	}
 }

@@ -9,11 +9,17 @@ namespace Train.Api.Controllers
     [ApiController]
     public class TrainController : ControllerBase
     {
+        private readonly IUploadXmlFileService _uploadXmlFileService;
+
+        public TrainController(IUploadXmlFileService uploadXmlFileService)
+        {
+            _uploadXmlFileService = uploadXmlFileService;   
+        }
+
         [HttpPost]
         public async Task<IActionResult> Post(IFormFile file)
         {
-            var parser = new UploadXmlFileService();
-            var data = await parser.UploadData(file);
+            var data = await _uploadXmlFileService.UploadData(file);
             return Ok(data);
         }
     }

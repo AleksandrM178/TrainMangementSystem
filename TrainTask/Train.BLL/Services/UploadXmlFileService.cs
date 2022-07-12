@@ -4,21 +4,31 @@ using System.Reflection;
 using System.Xml.Serialization;
 using Train.BLL.Models;
 using Train.BLL.Models.XmlModels;
+using Train.DAL;
 
 namespace Train.BLL
 {
-    public class UploadXmlFileService
-    {      
+    public class UploadXmlFileService : IUploadXmlFileService
+    {
+        private readonly ITrainRepository _trainRepository;
+
+        public UploadXmlFileService(ITrainRepository trainRepository)
+        {
+            _trainRepository = trainRepository;
+        }
+
         public async Task<List<TrainFullScalePage>> UploadData(IFormFile file)
         {
             var trains = new List<TrainFullScalePage>();
             var parsedData = DeserializeTrainDataFromXml(file);
 
-            if(parsedData != null)
+            if (parsedData != null)
             {
                 trains = ConvertTrainFullScalePages(parsedData);
                 var railCarsTable = GetDataTableForRailCars(trains);
                 var trainsTable = GetDataTableForTrains(trains);
+                _trainRepository.Add(trainsTable, railCarsTable);
+
             }
             return trains;
         }
@@ -26,18 +36,19 @@ namespace Train.BLL
         private DataTable GetDataTableForRailCars(List<TrainFullScalePage> trains)
         {
             var table = GenerateTableForRailCar();
-            foreach(var train in trains)
+            foreach (var train in trains)
             {
-                foreach (var carriage in train.Сarriages) 
+                foreach (var carriage in train.Сarriages)
                 {
-                    table.Rows.Add(new object[] 
+                    table.Rows.Add(new object[]
                     {
-                        carriage.LastOperationName, 
+                        carriage.LastOperationName,
                         carriage.InvoiceNum,
                         carriage.PositionInTrain,
                         carriage.CarNumber,
                         carriage.FreightEtsngName,
-                        carriage.FreightTotalWeightKg
+                        carriage.FreightTotalWeightKg,
+                        carriage.TrainNum
                     });
                 }
             }
@@ -74,9 +85,9 @@ namespace Train.BLL
             trainTable.Columns.Add("WhenLastOperation", typeof(System.String));
             return trainTable;
         }
-       private DataTable GenerateTableForRailCar()
+        private DataTable GenerateTableForRailCar()
 
-       {
+        {
 
             DataTable railCarTable = new DataTable();
             railCarTable.Clear();
@@ -86,6 +97,7 @@ namespace Train.BLL
             railCarTable.Columns.Add("CarNumber", typeof(System.Int32));
             railCarTable.Columns.Add("FreightEtsngName", typeof(System.String));
             railCarTable.Columns.Add("FreightTotalWeightKg", typeof(System.Int32));
+            railCarTable.Columns.Add("TrainNum", typeof(System.Int32));
             return railCarTable;
         }
 
@@ -101,7 +113,7 @@ namespace Train.BLL
                     LastStationName = t.Select(x => x.LastStationName).FirstOrDefault(),
                     TrainIndexCombined = t.Select(x => x.TrainIndexCombined).FirstOrDefault(),
                     WhenLastOperation = t.Select(x => x.WhenLastOperation).FirstOrDefault(),
-                    Сarriages = t.Select(c => 
+                    Сarriages = t.Select(c =>
                     new RailCar()
                     {
                         CarNumber = c.CarNumber,
@@ -109,7 +121,8 @@ namespace Train.BLL
                         FreightEtsngName = c.FreightEtsngName,
                         LastOperationName = c.LastOperationName,
                         PositionInTrain = c.PositionInTrain,
-                        FreightTotalWeightKg = c.FreightTotalWeightKg
+                        FreightTotalWeightKg = c.FreightTotalWeightKg,
+                        TrainNum = c.TrainNumber
 
                     }).OrderBy(x => x.PositionInTrain).ToList()
                 }).ToList();
@@ -122,20 +135,20 @@ namespace Train.BLL
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Row>), new XmlRootAttribute("Root"));
             var parsedData = new List<Row>();
 
-            using(var stream = new StreamReader(file.OpenReadStream()))
+            using (var stream = new StreamReader(file.OpenReadStream()))
             {
                 try
                 {
                     parsedData = (List<Row>)xmlSerializer.Deserialize(stream);
                 }
-                catch (Exception ex) 
+                catch (Exception ex)
                 {
                     throw new Exception();
                 }
 
                 stream.Close();
             }
-       
+
             return parsedData;
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿
+using System.Xml.Serialization;
 
 namespace Train.BLL.Models.XmlModels
 {

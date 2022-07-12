@@ -9,8 +9,7 @@
     <ProjectGuid>{939f2527-8777-4a52-9c63-b73c6a03624a}</ProjectGuid>
     <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
-    <RootPath>
-    </RootPath>
+    <RootPath />
     <RootNamespace>Train.DB</RootNamespace>
     <AssemblyName>Train.DB</AssemblyName>
     <ModelCollation>1033, CI</ModelCollation>
@@ -48,7 +47,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
-    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
     <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
     <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
   </PropertyGroup>
@@ -60,5 +58,7 @@
   <ItemGroup>
     <Build Include="TrainFullScalePage.sql" />
     <Build Include="RailCar.sql" />
+    <Build Include="UserDefinedTableType1.sql" />
+    <Build Include="AddTrainsWithRailCars.sql" />
   </ItemGroup>
 </Project>
